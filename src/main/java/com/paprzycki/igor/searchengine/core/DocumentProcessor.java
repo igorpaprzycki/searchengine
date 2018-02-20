@@ -6,7 +6,7 @@ import com.paprzycki.igor.searchengine.persistance.IndexDAO;
 import com.sun.istack.internal.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 
 @Component
@@ -25,7 +25,7 @@ public class DocumentProcessor implements Processor {
                 .toLowerCase()
                 .split(SPACE);
 
-        Map<String, TermIndex> indexes = new HashMap<>();
+        Map<String, TermIndex> indexes = indexDAO.getTermIndexes(Arrays.asList(words));
 
         for (String word : words) {
             TermIndex termIndex = indexes.get(word);
@@ -37,5 +37,6 @@ public class DocumentProcessor implements Processor {
                 indexes.put(word, termIndex);
             }
         }
+        indexDAO.updateTermIndex(indexes.values());
     }
 }

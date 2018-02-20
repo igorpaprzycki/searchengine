@@ -6,8 +6,10 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface IndexDAO {
-    void updateTermIndex(TermIndex termIndex);
+    void updateTermIndex(Collection<TermIndex> termIndex);
 
     Map<String, TermIndex> getTermIndexes(Collection<String> terms);
+
+    Map<String, TermIndex> getAllTermIndexes();
 
 }

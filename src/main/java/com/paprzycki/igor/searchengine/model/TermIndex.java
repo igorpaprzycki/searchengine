@@ -24,8 +24,8 @@ public class TermIndex {
         return nameAndTermCountMap;
     }
 
-    public int getWordCount(@NotNull Document document) {
-        return nameAndTermCountMap.getOrDefault(document.getName(), 0);
+    public int getWordCount(@NotNull String documentName) {
+        return nameAndTermCountMap.getOrDefault(documentName, 0);
     }
 
     public void addDocument(@NotNull Document document) {

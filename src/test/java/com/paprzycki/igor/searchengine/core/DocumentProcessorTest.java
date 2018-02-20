@@ -2,6 +2,8 @@ package com.paprzycki.igor.searchengine.core;
 
 import com.paprzycki.igor.searchengine.model.Document;
 import com.paprzycki.igor.searchengine.model.TermIndex;
+import com.paprzycki.igor.searchengine.persistance.InMemoryIndexDAO;
+import com.paprzycki.igor.searchengine.persistance.IndexDAO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,16 +16,19 @@ import static org.junit.Assert.assertTrue;
 public class DocumentProcessorTest {
 
     private Processor processor;
+    private IndexDAO indexDAO;
     private Map<String, TermIndex> indexes;
     private Document document;
 
     @Before
     public void setUp() {
-        processor = new DocumentProcessor();
+        indexDAO = new InMemoryIndexDAO();
+        processor = new DocumentProcessor(indexDAO);
     }
 
     @After
     public void tearDown() {
+        indexDAO = null;
         processor = null;
         document = null;
         indexes = null;
@@ -32,33 +37,55 @@ public class DocumentProcessorTest {
     @Test
     public void shouldGenerateNewIndex() {
         document = new Document("Document 1", "the brown fox jumped over the brown dog");
-        indexes = processor.processDocument(document);
+        processor.processDocument(document);
+
+        indexes = indexDAO.getAllTermIndexes();
 
         assertEquals(6, indexes.size());
 
-        assertIndex("the", 2);
-        assertIndex("brown", 2);
-        assertIndex("fox", 1);
-        assertIndex("jumped", 1);
-        assertIndex("over", 1);
-        assertIndex("dog", 1);
-
+        assertIndex("the", "Document 1", 2);
+        assertIndex("brown", "Document 1", 2);
+        assertIndex("fox", "Document 1", 1);
+        assertIndex("jumped", "Document 1", 1);
+        assertIndex("over", "Document 1", 1);
+        assertIndex("dog", "Document 1", 1);
     }
 
     @Test
     public void shouldUpdateExistingIndex() {
-        Document document1 = new Document("Document 1", "the brown fox jumped over the brown dog");
-        Map<String, TermIndex> indexes = processor.processDocument(document1);
+        document = new Document("Document 1", "   the brown fox jumped over the brown dog");
+        processor.processDocument(document);
+
+        indexes = indexDAO.getAllTermIndexes();
 
         assertEquals(6, indexes.size());
 
-        Document document2 = new Document("Document 2", "the red snake ate brown fox");
+        document = new Document("Document 2", "the red snake ate red fox   ");
+        processor.processDocument(document);
+
+        indexes = indexDAO.getAllTermIndexes();
+
+        assertEquals(9, indexes.size());
+
+        assertIndex("the", "Document 1", 2);
+        assertIndex("brown", "Document 1", 2);
+        assertIndex("fox", "Document 1", 1);
+        assertIndex("jumped", "Document 1", 1);
+        assertIndex("over", "Document 1", 1);
+        assertIndex("dog", "Document 1", 1);
+
+        assertIndex("the", "Document 2", 1);
+        assertIndex("red", "Document 2", 2);
+        assertIndex("snake", "Document 2", 1);
+        assertIndex("ate", "Document 2", 1);
+        assertIndex("fox", "Document 2", 1);
+
     }
 
-    private void assertIndex(String term, int occurrences) {
+    private void assertIndex(String term, String documentName, int occurrences) {
         TermIndex testIndex;
         testIndex = indexes.get(term);
-        assertTrue(testIndex.getNameAndTermCountMap().containsKey(document.getName()));
-        assertEquals(occurrences, testIndex.getWordCount(document));
+        assertTrue(testIndex.getNameAndTermCountMap().containsKey(documentName));
+        assertEquals(occurrences, testIndex.getWordCount(documentName));
     }
 }
