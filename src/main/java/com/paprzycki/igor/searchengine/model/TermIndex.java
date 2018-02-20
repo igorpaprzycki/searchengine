@@ -3,29 +3,38 @@ package com.paprzycki.igor.searchengine.model;
 import com.sun.istack.internal.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class TermIndex {
     private String term;
-    private Set<Document> documentList;
+    private Map<String, Integer> nameAndTermCountMap;
 
     public TermIndex(@NotNull String term) {
         this.term = term;
-        documentList = new HashSet<>();
+        nameAndTermCountMap = new HashMap<>();
     }
 
     public String getTerm() {
         return this.term;
     }
 
-    public Collection<Document> getDocumentList() {
-        return documentList;
+    public Map<String, Integer> getNameAndTermCountMap() {
+        return nameAndTermCountMap;
     }
 
-    public void updateIndex(@NotNull Document document) {
-        documentList.add(document);
+    public int getWordCount(@NotNull Document document) {
+        return nameAndTermCountMap.getOrDefault(document.getName(), 0);
+    }
+
+    public void addDocument(@NotNull Document document) {
+        String documentName = document.getName();
+        if (nameAndTermCountMap.containsKey(documentName)) {
+            int count = nameAndTermCountMap.get(documentName);
+            nameAndTermCountMap.put(document.getName(), ++count);
+        } else {
+            nameAndTermCountMap.put(document.getName(), 1);
+        }
     }
 }

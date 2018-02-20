@@ -3,8 +3,7 @@ package com.paprzycki.igor.searchengine.persistance;
 import com.paprzycki.igor.searchengine.model.TermIndex;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class InMemoryIndexDAO implements IndexDAO {
@@ -16,11 +15,15 @@ public class InMemoryIndexDAO implements IndexDAO {
 
     @Override
     public void updateTermIndex(TermIndex termIndex) {
-        termIndexTable.put(termIndex.getTerm(), termIndex);
+        if (termIndex != null) {
+            termIndexTable.put(termIndex.getTerm(), termIndex);
+        }
     }
 
     @Override
-    public TermIndex getTermIndex(String term) {
-        return termIndexTable.get(term);
+    public Map<String, TermIndex> getTermIndexes(Collection<String> terms) {
+        Map<String, TermIndex>  indexList = new HashMap<>();
+
+        return indexList;
     }
 }
