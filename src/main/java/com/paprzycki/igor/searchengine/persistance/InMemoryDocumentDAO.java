@@ -4,6 +4,7 @@ import com.paprzycki.igor.searchengine.model.Document;
 import com.sun.istack.internal.NotNull;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class InMemoryDocumentDAO implements DocumentDAO {
 
     @Override
     public void insertDocument(@NotNull Document document) {
-            documentsTable.put(document.getName(), document);
+        documentsTable.put(document.getName(), document);
     }
 
     @Override
@@ -31,8 +32,12 @@ public class InMemoryDocumentDAO implements DocumentDAO {
     }
 
     @Override
-    public int getNumberOfWordsInDocument(String documentName) {
-        return documentsTable.get(documentName).getContent().trim().split("\\s").length;
+    public Map<String, Integer> getNumberOfWordsInDocument(Collection<String> documentNames) {
+        Map<String, Integer> resultsMap = new HashMap<>();
+        documentNames.forEach((d) ->
+                resultsMap.put(d, documentsTable.get(d).getContent().trim().split("\\s").length));
+
+        return resultsMap;
     }
 
 }

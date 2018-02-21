@@ -5,6 +5,7 @@ import com.paprzycki.igor.searchengine.core.UnsupportedDocumentException;
 import com.paprzycki.igor.searchengine.core.UnsupportedSearchTermException;
 import com.paprzycki.igor.searchengine.model.Document;
 import com.paprzycki.igor.searchengine.model.SearchResult;
+import com.paprzycki.igor.searchengine.model.SearchStatistics;
 import com.paprzycki.igor.searchengine.model.TermIndex;
 import com.paprzycki.igor.searchengine.persistance.DocumentDAO;
 import com.paprzycki.igor.searchengine.persistance.IndexDAO;
@@ -29,7 +30,7 @@ public class SingleTermSearchEngine implements SearchEngine {
     @Override
     public Collection<String> search(String term) throws UnsupportedSearchTermException {
         validateSearchTerm(term);
-        return calculateStatistics(term);
+        return singleTermSearch(term);
     }
 
     @Override
@@ -62,16 +63,23 @@ public class SingleTermSearchEngine implements SearchEngine {
         }
     }
 
-    private List<String> calculateStatistics(String term) {
-
+    private List<String> singleTermSearch(String term) {
         List<SearchResult> unsortedSearchResult = new ArrayList<>();
-        Map<String, TermIndex> indexes = indexDAO.getTermIndexes(Arrays.asList(term));
 
+        Map<String, TermIndex> indexes = indexDAO.getTermIndexes(Arrays.asList(term));
+        int numberOfAllDocuments = documentDAO.getNumberOfDocuments();
         Map<String, Integer> nameAndTermCountMap = indexes.get(term).getNameAndTermCountMap();
 
         int documentCount = nameAndTermCountMap.size();
-        nameAndTermCountMap.forEach((name, count) ->
-                unsortedSearchResult.add(new SearchResult(calculateTfIdfFactor(count, name, documentCount), name)));
+        SearchStatistics searchStatistics = new SearchStatistics(documentCount, numberOfAllDocuments);
+
+        Map<String, Integer> nameAndWordCountMap = documentDAO.getNumberOfWordsInDocument(nameAndTermCountMap.keySet());
+        nameAndWordCountMap.forEach((name, wordCount) ->
+                searchStatistics.addDocumentStatistics(name, nameAndTermCountMap.get(name), wordCount)
+        );
+
+        nameAndTermCountMap.forEach((name, termCount) ->
+                unsortedSearchResult.add(new SearchResult(calculateTfIdfFactor(name, searchStatistics), name)));
 
         sort(unsortedSearchResult);
 
@@ -82,11 +90,9 @@ public class SingleTermSearchEngine implements SearchEngine {
     }
 
 
-    private Double calculateTfIdfFactor(double wordCount, String name, double documentCount) {
-        int numberOfWordsInDocument = documentDAO.getNumberOfWordsInDocument(name);
-        int numberOfAllDocuments = documentDAO.getNumberOfDocuments();
-        return calculateTfFactor(wordCount, numberOfWordsInDocument)
-                * calculateIdfFactor(numberOfAllDocuments, documentCount);
+    private Double calculateTfIdfFactor(String name, SearchStatistics statistics) {
+        return calculateTfFactor(statistics.getTermCount(name), statistics.getNumberOfWordsInDocument(name))
+                * calculateIdfFactor(statistics.getNumberOfAllDocuments(), statistics.getDocumentCount());
     }
 
     private double calculateTfFactor(double wordCount, double numberOfWordsInDocument) {
