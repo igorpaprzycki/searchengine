@@ -1,6 +1,7 @@
 package com.paprzycki.igor.searchengine.persistance;
 
 import com.paprzycki.igor.searchengine.model.Document;
+import com.sun.istack.internal.NotNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -15,10 +16,8 @@ public class InMemoryDocumentDAO implements DocumentDAO {
     }
 
     @Override
-    public void insertDocument(Document document) {
-        if (document != null) {
+    public void insertDocument(@NotNull Document document) {
             documentsTable.put(document.getName(), document);
-        }
     }
 
     @Override

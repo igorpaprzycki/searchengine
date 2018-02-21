@@ -17,11 +17,9 @@ public class InMemoryIndexDAO implements IndexDAO {
 
     @Override
     public void updateTermIndex(Collection<TermIndex> termIndex) {
-        if (termIndex != null) {
-            termIndex.forEach((e) ->
-                    termIndexTable.put(e.getTerm(), e)
-            );
-        }
+        termIndex.forEach((e) ->
+                termIndexTable.put(e.getTerm(), e)
+        );
     }
 
     @Override
