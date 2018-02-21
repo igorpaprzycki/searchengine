@@ -26,5 +26,14 @@ public class InMemoryDocumentDAO implements DocumentDAO {
         return documentsTable.size();
     }
 
+    @Override
+    public Document getDocument(String documentName) {
+        return documentsTable.get(documentName);
+    }
+
+    @Override
+    public int getNumberOfWordsInDocument(String documentName) {
+        return documentsTable.get(documentName).getContent().trim().split("\\s").length;
+    }
 
 }

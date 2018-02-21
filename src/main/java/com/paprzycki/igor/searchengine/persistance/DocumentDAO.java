@@ -6,4 +6,8 @@ public interface DocumentDAO {
     void insertDocument(Document document);
 
     int getNumberOfDocuments();
+
+    Document getDocument(String documentName);
+
+    int getNumberOfWordsInDocument(String documentName);
 }

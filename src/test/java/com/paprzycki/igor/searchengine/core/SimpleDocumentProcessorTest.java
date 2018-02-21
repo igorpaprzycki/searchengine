@@ -13,9 +13,9 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class DocumentProcessorTest {
+public class SimpleDocumentProcessorTest {
 
-    private Processor processor;
+    private DocumentProcessor documentProcessor;
     private IndexDAO indexDAO;
     private Map<String, TermIndex> indexes;
     private Document document;
@@ -23,13 +23,13 @@ public class DocumentProcessorTest {
     @Before
     public void setUp() {
         indexDAO = new InMemoryIndexDAO();
-        processor = new DocumentProcessor(indexDAO);
+        documentProcessor = new SimpleDocumentProcessor(indexDAO);
     }
 
     @After
     public void tearDown() {
         indexDAO = null;
-        processor = null;
+        documentProcessor = null;
         document = null;
         indexes = null;
     }
@@ -37,7 +37,7 @@ public class DocumentProcessorTest {
     @Test
     public void shouldGenerateNewIndex() {
         document = new Document("Document 1", "the brown fox jumped over the brown dog");
-        processor.processDocument(document);
+        documentProcessor.processDocument(document);
 
         indexes = indexDAO.getAllTermIndexes();
 
@@ -54,14 +54,14 @@ public class DocumentProcessorTest {
     @Test
     public void shouldUpdateExistingIndex() {
         document = new Document("Document 1", "   the brown fox jumped over the brown dog");
-        processor.processDocument(document);
+        documentProcessor.processDocument(document);
 
         indexes = indexDAO.getAllTermIndexes();
 
         assertEquals(6, indexes.size());
 
         document = new Document("Document 2", "the red snake ate red fox   ");
-        processor.processDocument(document);
+        documentProcessor.processDocument(document);
 
         indexes = indexDAO.getAllTermIndexes();
 
