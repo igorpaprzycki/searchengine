@@ -3,7 +3,6 @@ package com.paprzycki.igor.searchengine.core;
 import com.paprzycki.igor.searchengine.model.Document;
 import com.paprzycki.igor.searchengine.model.TermIndex;
 import com.paprzycki.igor.searchengine.persistance.IndexDAO;
-import com.sun.istack.internal.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -19,7 +18,7 @@ public class SimpleDocumentProcessor implements DocumentProcessor {
     }
 
     @Override
-    public void processDocument(@NotNull Document document) {
+    public void processDocument(Document document) {
         String[] words = document.getContent()
                 .trim()
                 .toLowerCase()
